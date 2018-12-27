@@ -4,21 +4,23 @@ import { postsController } from '../../controllers/PostsController';
 import { Observable } from 'rxjs';
 import { AxiosResponse } from "axios";
 
+const mockResponse = createResponse();
 describe('Post Route "/posts"', function() {
     describe('getPosts() function', function() {
-        it('Should return type Observable<AxiosResponse>', function() {
-            const mockRequest = createRequest({
-                method: "GET",
-                url: "/posts"
+        const mockRequest = createRequest({
+            method: "GET",
+            url: "/posts"
+        });
+        const actualResponseBody = postsController.getPosts(mockRequest, mockResponse);
+        it('Should return 200 "api available"', function() {
+            actualResponseBody.subscribe(res => {
+                assert.equal(res.status, 200);
             });
-            const mockResponse = createResponse();
-            const actualResponseBody = postsController.getPosts(mockRequest, mockResponse);
-            assert.typeOf(actualResponseBody, 'Object');
-            console.log(213);
-            //actualResponseBody.subscribe(res => console.log(res));
-            console.log(413);
-            // const expectedResponseBody = "hello world!";
-            // assert(actualResponseBody, expectedResponseBody);
+        });
+        it('Is posts exist?', function() {
+            actualResponseBody.subscribe(res => {
+                expect(res.data).to.have.length.above(1)
+            });
         });
     })
 });

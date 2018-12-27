@@ -2,63 +2,54 @@ import { Request, Response } from "express";
 import axios, {AxiosResponse} from "axios";
 import { Observable, from, forkJoin } from 'rxjs';
 import { map } from 'rxjs/operators';
-
 import { config as apiConfig }  from "../config/api-config"
 import { Post, Comment, User  } from '../models';
 
 export class PostsController {
-
   public getPosts(req: Request, res: Response) {  
     let posts: Post[];
-    let apiCall: Observable<AxiosResponse> = from(axios.get(`${apiConfig.root}/posts`));
-    apiCall
-      .subscribe(response => {
-        posts = response.data;
-        res.status(200).send({
-          response: posts
+    let comments: Comment[];
+    let getPostsRequest: Observable<AxiosResponse> = from(axios.get(`${apiConfig.root}/posts`));
+    let commentsRequest: Observable<AxiosResponse>;
+    let apiCall: Observable<any> = getPostsRequest;
+    if (req.query["post_comments"]) {
+      commentsRequest = from(axios.get(`${apiConfig.root}/comments`));
+      apiCall = forkJoin([ getPostsRequest, commentsRequest ]);
+      apiCall
+        .subscribe(response => {
+          [{data: posts}, {data: comments}] = response;
+          res.status(200).send({
+            response: this.fillPostComments(posts,comments)
+          });
         });
-      });
+    } else {
+      apiCall
+        .subscribe(response => {
+          posts = response.data;
+          res.status(response.status).send({
+            response: posts
+          });
+        });
+    }
     return apiCall;
   }
 
   public getPost(req: Request, res: Response) {
     let post: Post;
-    axios.get(`${apiConfig.root}/posts/${req.params.postId}`)
-    .then(response => {
-      post = response.data;
-      res.status(200).send({
-        response: post
-      });
-    });
-  }
-
-  public getUserPosts(req: Request, res: Response) {
-    let userWithPosts: User;
-    let userPosts: Observable<Array<Post>> = from(axios.get(`${apiConfig.root}/posts`))
-      .pipe( 
-        map( apiResponse => apiResponse.data ),
-        map( posts => posts.filter(post => post.userId == req.params.userId ))
-      );
-
-    let user: Observable<User> = from(axios.get(`${apiConfig.root}/users/${req.params.userId}`))
-      .pipe(
-        map( apiResponse => apiResponse.data )
-      );
-      
-    forkJoin([ user, userPosts ])
-      .subscribe( results => {
-        userWithPosts = {
-          ...results[0],
-          posts: results[1]};
-        res.status(200).send({
-          response: userWithPosts
+    let apiCall: Observable<AxiosResponse> = from(axios.get(`${apiConfig.root}/posts/${req.params.postId}`));
+    apiCall
+      .subscribe(response => {
+        post = response.data;
+        res.status(response.status).send({
+          response: post
         });
       });
+    return apiCall;
   }
 
   public getPostComments(req: Request, res: Response) {
-
     let postWithComments: Post;
+    let apiCall: Observable<any>;
     let postComments: Observable<Array<Comment>> = from(axios.get(`${apiConfig.root}/comments`))
       .pipe( 
         map( apiResponse => apiResponse.data ),
@@ -69,8 +60,8 @@ export class PostsController {
       .pipe(
         map( apiResponse => apiResponse.data )
       );
-      
-    forkJoin([ post, postComments ])
+    apiCall = forkJoin([ post, postComments ]);
+    apiCall
       .subscribe( results => {
         postWithComments = {
           ...results[0],
@@ -79,44 +70,56 @@ export class PostsController {
           response: postWithComments
         });
       });
+    return apiCall;  
   }
 
   public addPost(req: Request, res: Response) {
     let createdPost: Post;
     let postParams = {...req.body};
     postParams.userId = +postParams.userId;
-    axios.post(`${apiConfig.root}/posts`, postParams)
-    .then(response => {
-      createdPost = {...response.data}
-      res.status(200).send({
-        response: createdPost
+    let apiCall: Observable<AxiosResponse> = from(axios.post(`${apiConfig.root}/posts`, postParams));
+    apiCall
+      .subscribe(response => {
+        createdPost = {...response.data}
+        res.status(response.status).send({
+          response: createdPost
+        });
       });
-    });
-
+    return apiCall;
   }
 
   public editPost(req: Request, res: Response) {
     let updatedPost: Post;
     let postParams: Post = { id: +req.params.postId, ...req.body };
     postParams.userId = +postParams.userId;
-    axios.put(`${apiConfig.root}/posts/${req.params.postId}`, postParams)
-    .then(response => {
-      updatedPost = response.data;
-      res.status(200).send({
-        response: updatedPost
+    let apiCall: Observable<AxiosResponse> = from(axios.put(`${apiConfig.root}/posts/${req.params.postId}`, postParams));
+    apiCall
+      .subscribe(response => {
+        updatedPost = response.data;
+        res.status(response.status).send({
+          response: updatedPost
+        });
       });
-    });
+    return apiCall;
   }
   
   public deletePost(req: Request, res: Response) {
-    axios.delete(`${apiConfig.root}/posts/${req.params.postId}`)
-    .then(response => {
-      res.status(200).send({
-        response: response.data
+    let apiCall: Observable<AxiosResponse> = from(axios.delete(`${apiConfig.root}/posts/${req.params.postId}`));
+    apiCall
+      .subscribe(response => {
+        res.status(response.status).send({
+          response: response.data
+        });
       });
-    });
+    return apiCall;
   }
 
+  private fillPostComments(post: Post[], comments: Comment[]): Post[] {
+    return post.map(post => {
+      return {...post, comments: comments.filter(comment => comment.postId == post.id)};
+    });
+    
+  }
 }
 
 export const postsController = new PostsController();

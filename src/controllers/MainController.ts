@@ -6,6 +6,12 @@ export class MainController {
       response: "Api works ok"
     });
   }
+
+  public path404(req: Request, res: Response) {
+    res.status(404).send({
+      response: "Wrong request"
+    });
+  }
 }
 
 export const mainController = new MainController();

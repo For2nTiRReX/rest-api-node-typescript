@@ -2,6 +2,7 @@ import * as express from "express";
 import * as bodyParser from "body-parser";
 import { mainRoutes } from "./routes/MainRoutes";
 import { postsRoutes } from "./routes/PostsRoutes";
+import { usersRoutes } from "./routes/UsersRoutes";
 
 class App {
   public app: express.Application;
@@ -18,7 +19,9 @@ class App {
     this.app.use(bodyParser.urlencoded({ extended: false }));
     this.app.use(express.static('public'));
     // Routing
-    this.app.use(mainRoutes,postsRoutes);
+    this.app.use("/",postsRoutes);
+    this.app.use("/",usersRoutes);
+    this.app.use(mainRoutes);
   }
 }
 

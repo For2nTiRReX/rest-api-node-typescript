@@ -16,9 +16,6 @@ class PostsRoutes {
         .get("/posts/:postId", (req: express.Request, res: express.Response) =>
             postsController.getPost(req, res)
         )
-        .get("/posts/users/:userId", (req: express.Request, res: express.Response) =>
-            postsController.getUserPosts(req, res)
-        )
         .get("/posts/:postId/comments", (req: express.Request, res: express.Response) =>
             postsController.getPostComments(req, res)
         )
