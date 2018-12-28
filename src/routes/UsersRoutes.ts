@@ -10,24 +10,24 @@ class UsersRoutes {
 
   private config(): void {
     this.router
-        .get("/users", (req: express.Request, res: express.Response) =>
+        .get("", (req: express.Request, res: express.Response) =>
             usersController.getUsers(req, res)
         )
-        .get("/users/:userId", (req: express.Request, res: express.Response) =>
-            usersController.getUsers(req, res)
+        .get("/:userId", (req: express.Request, res: express.Response) =>
+            usersController.getUser(req, res)
         )
-        .get("/users/:userId/posts", (req: express.Request, res: express.Response) =>
+        .get("/:userId/posts", (req: express.Request, res: express.Response) =>
             usersController.getUserPosts(req, res)
         )
-        .post("/users/add", (req: express.Request, res: express.Response) =>
+        .post("/add", (req: express.Request, res: express.Response) =>
             usersController.addUser(req, res)
         )
-        .put("/users/:userId", (req: express.Request, res: express.Response) =>
+        .put("/:userId", (req: express.Request, res: express.Response) =>
             usersController.editUser(req, res)
         )
-        .delete("/users/:userId", (req: express.Request, res: express.Response) =>
+        .delete("/:userId", (req: express.Request, res: express.Response) =>
             usersController.deleteUser(req, res)
-        )
+        ) 
   }
 }
 

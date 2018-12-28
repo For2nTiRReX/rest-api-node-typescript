@@ -19,8 +19,8 @@ class App {
     this.app.use(bodyParser.urlencoded({ extended: false }));
     this.app.use(express.static('public'));
     // Routing
-    this.app.use("/",postsRoutes);
-    this.app.use("/",usersRoutes);
+    this.app.use("/posts",postsRoutes);
+    this.app.use("/users",usersRoutes);
     this.app.use(mainRoutes);
   }
 }

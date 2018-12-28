@@ -10,22 +10,23 @@ class PostsRoutes {
 
   private config(): void {
     this.router
-        .get("/posts", (req: express.Request, res: express.Response) =>
+        .get("", (req: express.Request, res: express.Response) =>
             postsController.getPosts(req, res)
         )
-        .get("/posts/:postId", (req: express.Request, res: express.Response) =>
+        // To get post comments add "post_comments=1" to url arg.
+        .get("/:postId", (req: express.Request, res: express.Response) =>
             postsController.getPost(req, res)
         )
-        .get("/posts/:postId/comments", (req: express.Request, res: express.Response) =>
-            postsController.getPostComments(req, res)
-        )
-        .post("/posts/add", (req: express.Request, res: express.Response) =>
+        // .get("/posts/:postId/comments", (req: express.Request, res: express.Response) =>
+        //     postsController.getPostComments(req, res)
+        // )
+        .post("/add", (req: express.Request, res: express.Response) =>
             postsController.addPost(req, res)
         )
-        .put("/posts/:postId", (req: express.Request, res: express.Response) =>
+        .put("/:postId", (req: express.Request, res: express.Response) =>
             postsController.editPost(req, res)
         )
-        .delete("/posts/:postId", (req: express.Request, res: express.Response) =>
+        .delete("/:postId", (req: express.Request, res: express.Response) =>
             postsController.deletePost(req, res)
         )
   }

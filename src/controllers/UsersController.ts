@@ -4,7 +4,7 @@ import { Observable, from, forkJoin } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 import { config as apiConfig }  from "../config/api-config"
-import { Post, Comment, User  } from '../models';
+import { Post, User  } from '../models';
 
 export class UsersController {
   public getUsers(req: Request, res: Response) {  
